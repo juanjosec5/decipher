@@ -26,7 +26,7 @@ export const substitution: CipherModule = {
       .join('')
     const inverse = inverseMapFor(seed)
     const key = ALPHABET.map((letter) => `${letter}=${inverse.get(letter)}`).join(' ')
-    return { ciphertext, key: `Puzzle letter = original — ${key}` }
+    return { ciphertext, key: `Key: Puzzle letter = original — ${key}` }
   },
 
   getExample(seed) {

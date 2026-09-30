@@ -11,16 +11,16 @@ const props = defineProps<{ cipherType: CipherType; seed: number; difficulty: Di
 const HARD_FALLBACK = 'No hint given — work it out from the example above.'
 
 const label = computed(() => CIPHER_LABELS[props.cipherType])
-const example = computed(() => ciphers[props.cipherType].getExample(props.seed))
+const example = computed(() => ciphers[props.cipherType].getExample(props.seed, props.difficulty))
 // Substitution and numeric/Atbash are fixed equivalences, not shifts — "=" matches
 // the key format shown after solving (e.g. "A=Q B=W C=E"); Caesar/Morse keep the arrow.
 const EQUALS_CIPHERS: CipherType[] = ['substitution', 'numericSymbol']
 const pairSeparator = computed(() => (EQUALS_CIPHERS.includes(props.cipherType) ? '=' : '→'))
 const description = computed(() =>
-  props.difficulty === 'hard' ? HARD_FALLBACK : ciphers[props.cipherType].describe(props.seed),
+  props.difficulty === 'hard' ? HARD_FALLBACK : ciphers[props.cipherType].describe(props.seed, props.difficulty),
 )
 const keyLabel = computed(() =>
-  props.difficulty === 'hard' ? null : ciphers[props.cipherType].getKeyLabel(props.seed),
+  props.difficulty === 'hard' ? null : ciphers[props.cipherType].getKeyLabel(props.seed, props.difficulty),
 )
 </script>
 

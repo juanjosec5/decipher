@@ -51,7 +51,7 @@ export const morse: CipherModule = {
           .join(' '),
       )
       .join(' / ')
-    return { ciphertext, key: 'International Morse Code — letters split by space, words by /' }
+    return { ciphertext, key: 'Key: International Morse Code — letters split by space, words by /' }
   },
 
   getExample() {

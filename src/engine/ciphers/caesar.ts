@@ -1,11 +1,19 @@
-import type { CipherModule } from '@/types'
+import type { CipherModule, Difficulty } from '@/types'
 
 import { hash32 } from '../rng'
 
 const A = 'A'.charCodeAt(0)
 
-function shiftFor(seed: number): number {
-  // 1..25 — never 0, so the puzzle is never "encoded" as itself.
+// Easy/medium use a fixed, memorizable shift for their tier — repetition across
+// days is the point, it's what makes them "easy". Hard stays unpredictable (and
+// its shift is never stated outright — see CipherLegend's hard-tier fallback).
+const EASY_SHIFT = 5
+const MEDIUM_SHIFT = 15
+
+function shiftFor(seed: number, difficulty?: Difficulty): number {
+  if (difficulty === 'easy') return EASY_SHIFT
+  if (difficulty === 'medium') return MEDIUM_SHIFT
+  // hard, or no difficulty given (e.g. tests) — 1..25, never 0.
   return 1 + (hash32(seed) % 25)
 }
 
@@ -16,27 +24,27 @@ function shiftChar(ch: string, shift: number): string {
 }
 
 export const caesar: CipherModule = {
-  encode(plaintext, seed) {
-    const shift = shiftFor(seed)
+  encode(plaintext, seed, difficulty) {
+    const shift = shiftFor(seed, difficulty)
     const ciphertext = plaintext
       .toUpperCase()
       .split('')
       .map((ch) => shiftChar(ch, shift))
       .join('')
-    return { ciphertext, key: `Caesar shift +${shift}` }
+    return { ciphertext, key: `Key: Caesar shift +${shift}` }
   },
 
-  getExample(seed) {
-    const shift = shiftFor(seed)
+  getExample(seed, difficulty) {
+    const shift = shiftFor(seed, difficulty)
     return ['A', 'B', 'C'].map((from) => ({ from, to: shiftChar(from, shift) }))
   },
 
-  describe(seed) {
-    const shift = shiftFor(seed)
+  describe(seed, difficulty) {
+    const shift = shiftFor(seed, difficulty)
     return `Every letter was shifted forward ${shift} places. Shift each one back ${shift} to read it — loop back to Z if you go past A.`
   },
 
-  getKeyLabel(seed) {
-    return `Shift: ${shiftFor(seed)}`
+  getKeyLabel(seed, difficulty) {
+    return `Shift: ${shiftFor(seed, difficulty)}`
   },
 }

@@ -30,7 +30,7 @@ export const numericSymbol: CipherModule = {
         .split('')
         .map((ch) => atbashChar(ch))
         .join('')
-      return { ciphertext, key: 'Atbash — A↔Z, B↔Y, C↔X … the alphabet mirrored' }
+      return { ciphertext, key: 'Key: Atbash — A↔Z, B↔Y, C↔X … the alphabet mirrored' }
     }
 
     const ciphertext = upper
@@ -42,7 +42,7 @@ export const numericSymbol: CipherModule = {
           .join(' '),
       )
       .join(' / ')
-    return { ciphertext, key: 'A1Z26 — A=1, B=2 … Z=26, numbers split by space, words by /' }
+    return { ciphertext, key: 'Key: A1Z26 — A=1, B=2 … Z=26, numbers split by space, words by /' }
   },
 
   getExample(seed) {

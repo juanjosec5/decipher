@@ -21,7 +21,7 @@ export interface TodayPuzzle extends EncodedPuzzle {
 }
 
 export function buildPuzzle(seed: PuzzleSeed, puzzleNumber: number): TodayPuzzle {
-  const { ciphertext, key } = ciphers[seed.cipherType].encode(seed.plaintext, seed.id)
+  const { ciphertext, key } = ciphers[seed.cipherType].encode(seed.plaintext, seed.id, seed.difficulty)
   return { ...seed, ciphertext, key, puzzleNumber }
 }
 

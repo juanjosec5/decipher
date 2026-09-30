@@ -52,6 +52,30 @@ describe('caesar getKeyLabel', () => {
   })
 })
 
+describe('caesar difficulty-based shift', () => {
+  it('is always 5 on easy, regardless of seed', () => {
+    expect(caesar.getKeyLabel(1, 'easy')).toBe('Shift: 5')
+    expect(caesar.getKeyLabel(99, 'easy')).toBe('Shift: 5')
+  })
+
+  it('is always 15 on medium, regardless of seed', () => {
+    expect(caesar.getKeyLabel(1, 'medium')).toBe('Shift: 15')
+    expect(caesar.getKeyLabel(99, 'medium')).toBe('Shift: 15')
+  })
+
+  it('varies by seed on hard', () => {
+    const shifts = new Set(
+      [1, 2, 3, 4, 5, 6, 7, 8].map((seed) => caesar.getKeyLabel(seed, 'hard')),
+    )
+    expect(shifts.size).toBeGreaterThan(1)
+  })
+
+  it('encode and getKeyLabel agree on the shift used for a given difficulty', () => {
+    const { key } = caesar.encode(PHRASE, 3, 'easy')
+    expect(key).toContain('+5')
+  })
+})
+
 describe.each(Object.entries(SEED_VARIANT_MODULES))('%s seed sensitivity', (_name, mod) => {
   it('varies across different seeds', () => {
     const seeds = [1, 2, 3, 4, 5, 6, 7, 8]
