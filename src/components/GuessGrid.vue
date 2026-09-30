@@ -93,9 +93,14 @@ function onKeydown(i: number, event: KeyboardEvent) {
 }
 
 function onFocus(event: FocusEvent) {
+  const target = event.target as HTMLInputElement
   // Select-on-focus so clicking (or tabbing/arrowing) into a filled box lets you
   // just type over it, instead of getting stuck at maxlength=1.
-  ;(event.target as HTMLInputElement).select()
+  target.select()
+  // The on-screen keyboard covers the bottom of the viewport — pull the box
+  // (and the rest of the grid around it) up above it instead of letting the
+  // keyboard hide what you're typing.
+  target.scrollIntoView({ block: 'center', behavior: 'smooth' })
 }
 
 function onPaste(i: number, event: ClipboardEvent) {

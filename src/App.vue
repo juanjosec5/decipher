@@ -11,7 +11,7 @@ const puzzle = usePuzzleStore()
 </script>
 
 <template>
-  <div class="mx-auto min-h-screen max-w-sm px-5 py-6">
+  <div class="mx-auto min-h-screen max-w-sm px-5 pt-6 pb-72">
     <header class="flex items-baseline justify-between">
       <span class="font-stamp text-base tracking-wide text-ink">DECIPHER</span>
       <div class="flex items-baseline gap-4">

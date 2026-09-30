@@ -1,3 +1,4 @@
+import { track } from '@vercel/analytics'
 import { defineStore } from 'pinia'
 import { computed, onUnmounted, ref } from 'vue'
 
@@ -38,6 +39,7 @@ export const usePuzzleStore = defineStore('puzzle', () => {
   // then on, completing a test never writes to the real streak/history.
   let isTestMode = false
   let testDaysAdvanced = 0
+  let testStarted = false
 
   function loadSlot(slotIndex: number) {
     if (timer) clearInterval(timer)
@@ -104,6 +106,11 @@ export const usePuzzleStore = defineStore('puzzle', () => {
 
     startTimerIfNeeded()
 
+    if (!testStarted && !isTestMode) {
+      testStarted = true
+      track('test_started')
+    }
+
     const upper = char.slice(0, 1).toUpperCase()
     if (upper && upper !== answerChar) mistakes.value += 1
     letters.value[index] = upper
@@ -124,11 +131,9 @@ export const usePuzzleStore = defineStore('puzzle', () => {
       const isLastSlot = currentSlot.value === test.value.puzzles.length - 1
       if (isLastSlot && !isTestMode) {
         const slots = slotResults.value.filter((r): r is SlotResult => r !== null)
-        stats.recordResult({
-          testNumber: test.value.testNumber,
-          totalScore: slots.reduce((sum, s) => sum + s.score, 0),
-          slots,
-        })
+        const total = slots.reduce((sum, s) => sum + s.score, 0)
+        stats.recordResult({ testNumber: test.value.testNumber, totalScore: total, slots })
+        track('test_completed', { score: total })
       }
     }
   }

@@ -11,11 +11,14 @@ import '@fontsource/ibm-plex-mono/latin-500.css'
 import '@fontsource/ibm-plex-mono/latin-ext-400.css'
 import '@fontsource/ibm-plex-mono/latin-ext-500.css'
 
+import { inject } from '@vercel/analytics'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
 import App from './App.vue'
 import './style.css'
+
+inject()
 
 const app = createApp(App)
 
