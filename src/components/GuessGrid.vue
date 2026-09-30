@@ -1,11 +1,26 @@
 <script setup lang="ts">
 import type { ComponentPublicInstance } from 'vue'
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, reactive, ref, watch } from 'vue'
 
 import { normalizeGuess } from '@/engine/puzzleSelector'
 import { usePuzzleStore } from '@/stores/puzzle'
 
+const POP_DURATION_MS = 300
+
 const store = usePuzzleStore()
+
+const poppingIndexes = reactive(new Set<number>())
+watch(
+  () => store.statuses,
+  (next, prev) => {
+    next.forEach((status, i) => {
+      if (status === 'correct' && prev?.[i] !== 'correct') {
+        poppingIndexes.add(i)
+        setTimeout(() => poppingIndexes.delete(i), POP_DURATION_MS)
+      }
+    })
+  },
+)
 
 const answer = computed(() => normalizeGuess(store.puzzle.plaintext))
 
@@ -111,12 +126,18 @@ function onPaste(i: number, event: ClipboardEvent) {
         inputmode="text"
         autocomplete="off"
         autocapitalize="characters"
+        autocorrect="off"
+        spellcheck="false"
+        data-lpignore="true"
+        data-1p-ignore
+        data-form-type="other"
         maxlength="1"
         class="h-9 w-7 shrink-0 border-b text-center font-mono text-sm font-medium uppercase outline-none transition-colors"
         :class="{
           'border-b-2 border-correct text-correct': store.statuses[i] === 'correct',
           'border-b-2 border-wrong text-wrong': store.statuses[i] === 'wrong',
           'border-panel-line text-ink focus:border-ink': store.statuses[i] === 'empty',
+          'animate-letter-pop': poppingIndexes.has(i),
         }"
         @input="onInput(i, $event)"
         @keydown="onKeydown(i, $event)"
@@ -126,3 +147,9 @@ function onPaste(i: number, event: ClipboardEvent) {
     </div>
   </div>
 </template>
+
+<style scoped>
+.animate-letter-pop {
+  animation: letter-pop 300ms ease-out;
+}
+</style>

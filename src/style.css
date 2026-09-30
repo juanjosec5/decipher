@@ -16,6 +16,7 @@
 
   --palette-correct: 61 165 107; /* #3DA56B correct-letter tile */
   --palette-wrong: 217 76 76; /* #D94C4C wrong-guess signal */
+  --palette-medium: 214 158 61; /* #D69E3D amber — medium-difficulty badge */
 
   --palette-radius: 0.15rem;
 }
@@ -31,6 +32,7 @@
 
   --color-correct: rgb(var(--palette-correct));
   --color-wrong: rgb(var(--palette-wrong));
+  --color-medium: rgb(var(--palette-medium));
 
   --font-stamp: 'Special Elite', ui-monospace, monospace;
   --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
@@ -55,13 +57,15 @@
   font-family: var(--font-mono);
 }
 
-@keyframes tile-in {
-  from {
-    opacity: 0;
-    transform: scale(0.85);
+/* a correct letter pops — quick scale + lift, back to rest */
+@keyframes letter-pop {
+  0% {
+    transform: scale(1) translateY(0);
   }
-  to {
-    opacity: 1;
-    transform: scale(1);
+  40% {
+    transform: scale(1.25) translateY(-3px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
   }
 }

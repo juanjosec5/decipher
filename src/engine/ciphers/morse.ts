@@ -1,6 +1,6 @@
 import type { CipherModule } from '@/types'
 
-const MORSE: Record<string, string> = {
+export const MORSE_ALPHABET: Record<string, string> = {
   A: '.-',
   B: '-...',
   C: '-.-.',
@@ -47,7 +47,7 @@ export const morse: CipherModule = {
       .map((word) =>
         word
           .split('')
-          .map((ch) => MORSE[ch] ?? ch)
+          .map((ch) => MORSE_ALPHABET[ch] ?? ch)
           .join(' '),
       )
       .join(' / ')
@@ -55,7 +55,7 @@ export const morse: CipherModule = {
   },
 
   getExample() {
-    return ['S', 'O', 'A'].map((from) => ({ from, to: MORSE[from] }))
+    return ['S', 'O', 'A'].map((from) => ({ from, to: MORSE_ALPHABET[from] }))
   },
 
   describe() {

@@ -10,9 +10,9 @@ const LABEL: Record<Difficulty, string> = {
 }
 
 const TONE: Record<Difficulty, string> = {
-  easy: 'border-panel-line text-ink-muted',
-  medium: 'border-ink-muted text-ink',
-  hard: 'border-ink bg-ink text-ground',
+  easy: 'border-correct text-correct',
+  medium: 'border-medium text-medium',
+  hard: 'border-wrong text-wrong',
 }
 </script>
 

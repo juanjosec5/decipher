@@ -1,5 +1,5 @@
 import { puzzles } from '@/data/puzzles'
-import type { EncodedPuzzle } from '@/types'
+import type { EncodedPuzzle, PuzzleSeed } from '@/types'
 
 import { ciphers } from './ciphers'
 
@@ -20,13 +20,16 @@ export interface TodayPuzzle extends EncodedPuzzle {
   puzzleNumber: number
 }
 
+export function buildPuzzle(seed: PuzzleSeed, puzzleNumber: number): TodayPuzzle {
+  const { ciphertext, key } = ciphers[seed.cipherType].encode(seed.plaintext, seed.id)
+  return { ...seed, ciphertext, key, puzzleNumber }
+}
+
 export function getPuzzleForDay(now: Date = new Date()): TodayPuzzle {
   const days = Math.max(0, daysSinceLaunch(now))
   const puzzleNumber = days + 1
   const index = days % puzzles.length
-  const seed = puzzles[index]
-  const { ciphertext, key } = ciphers[seed.cipherType].encode(seed.plaintext, seed.id)
-  return { ...seed, ciphertext, key, puzzleNumber }
+  return buildPuzzle(puzzles[index], puzzleNumber)
 }
 
 export function normalizeGuess(value: string): string {
