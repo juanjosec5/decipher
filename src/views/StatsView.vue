@@ -6,7 +6,7 @@ const stats = useStatsStore()
 const rows = [
   { label: 'Current streak', value: () => stats.currentStreak },
   { label: 'Longest streak', value: () => stats.longestStreak },
-  { label: 'Puzzles cracked', value: () => stats.solvedCount },
+  { label: 'Tests completed', value: () => stats.solvedCount },
 ]
 </script>
 
@@ -22,7 +22,7 @@ const rows = [
     </dl>
 
     <p v-if="stats.solvedCount === 0" class="text-sm text-ink-muted">
-      Crack today's puzzle to start your record.
+      Complete today's test to start your record.
     </p>
   </div>
 </template>

@@ -61,4 +61,8 @@ export const morse: CipherModule = {
   describe() {
     return 'Each letter is written as dots and dashes. A space splits letters, a / splits words — match each group against the Morse alphabet.'
   },
+
+  getKeyLabel() {
+    return null
+  },
 }

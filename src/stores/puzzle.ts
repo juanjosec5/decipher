@@ -1,17 +1,27 @@
 import { defineStore } from 'pinia'
 import { computed, onUnmounted, ref } from 'vue'
 
-import { puzzles } from '@/data/puzzles'
 import { getLetterStatus } from '@/engine/letterStatus'
-import { buildPuzzle, getPuzzleForDay, normalizeGuess } from '@/engine/puzzleSelector'
-import type { TodayPuzzle } from '@/engine/puzzleSelector'
+import {
+  getTestForDay,
+  LAUNCH_DATE,
+  normalizeGuess,
+  TOTAL_GROUPS,
+} from '@/engine/puzzleSelector'
+import type { DailyTest } from '@/engine/puzzleSelector'
+import { scorePuzzle } from '@/engine/scoring'
 
 import { useStatsStore } from './stats'
+import type { SlotResult } from './stats'
 
 export const usePuzzleStore = defineStore('puzzle', () => {
   const stats = useStatsStore()
 
-  const puzzle = ref<TodayPuzzle>(getPuzzleForDay())
+  const test = ref<DailyTest>(getTestForDay())
+  const currentSlot = ref(0)
+  const slotResults = ref<(SlotResult | null)[]>(test.value.puzzles.map(() => null))
+
+  const puzzle = computed(() => test.value.puzzles[currentSlot.value])
   const answer = ref('')
   const mistakes = ref(0)
   const solved = ref(false)
@@ -24,31 +34,36 @@ export const usePuzzleStore = defineStore('puzzle', () => {
   let timer: ReturnType<typeof setInterval> | undefined
   let started = false
 
-  // Set once the temporary "next puzzle" test button is used — from then on,
-  // solving never writes to the real streak/history (see `nextTestPuzzle`).
+  // Set once the temporary "jump to another day" test control is used — from
+  // then on, completing a test never writes to the real streak/history.
   let isTestMode = false
+  let testDaysAdvanced = 0
 
-  function loadPuzzle(next: TodayPuzzle, { trackStats }: { trackStats: boolean }) {
+  function loadSlot(slotIndex: number) {
     if (timer) clearInterval(timer)
     timer = undefined
     started = false
     startedAt = 0
 
-    puzzle.value = next
-    answer.value = normalizeGuess(next.plaintext)
+    currentSlot.value = slotIndex
     mistakes.value = 0
+    solved.value = false
+    elapsedMs.value = 0
 
-    const priorResult = trackStats ? stats.getResult(next.puzzleNumber) : undefined
-    solved.value = Boolean(priorResult)
-    elapsedMs.value = priorResult?.elapsedMs ?? 0
-
+    const next = test.value.puzzles[slotIndex]
+    answer.value = normalizeGuess(next.plaintext)
     // One entry per character of the answer, spaces pre-filled and never editable.
-    letters.value = solved.value
-      ? answer.value.split('')
-      : answer.value.split('').map((ch) => (ch === ' ' ? ' ' : ''))
+    letters.value = answer.value.split('').map((ch) => (ch === ' ' ? ' ' : ''))
   }
 
-  loadPuzzle(puzzle.value, { trackStats: true })
+  const priorTestResult = stats.getResult(test.value.testNumber)
+  if (priorTestResult) {
+    slotResults.value = priorTestResult.slots.map((s) => ({ ...s }))
+    loadSlot(test.value.puzzles.length - 1)
+    solved.value = true
+  } else {
+    loadSlot(0)
+  }
 
   function startTimerIfNeeded() {
     if (started || solved.value) return
@@ -74,10 +89,13 @@ export const usePuzzleStore = defineStore('puzzle', () => {
     answer.value.split('').map((answerChar, i) => getLetterStatus(letters.value[i] ?? '', answerChar)),
   )
 
-  const hasNextTestPuzzle = computed(() => {
-    const index = puzzles.findIndex((p) => p.id === puzzle.value.id)
-    return index >= 0 && index + 1 < puzzles.length
-  })
+  const isTestComplete = computed(() => slotResults.value.every((r) => r !== null))
+  const currentScore = computed(() => slotResults.value[currentSlot.value]?.score ?? null)
+  const totalScore = computed(() =>
+    slotResults.value.reduce((sum, r) => sum + (r?.score ?? 0), 0),
+  )
+  const hasNextSlot = computed(() => currentSlot.value < test.value.puzzles.length - 1)
+  const hasNextTestDay = computed(() => testDaysAdvanced < TOTAL_GROUPS - 1)
 
   function setLetterAt(index: number, char: string) {
     if (solved.value) return
@@ -94,35 +112,61 @@ export const usePuzzleStore = defineStore('puzzle', () => {
       solved.value = true
       elapsedMs.value = Date.now() - startedAt
       if (timer) clearInterval(timer)
-      if (!isTestMode) {
+
+      const result: SlotResult = {
+        cipherType: puzzle.value.cipherType,
+        elapsedMs: elapsedMs.value,
+        mistakes: mistakes.value,
+        score: scorePuzzle(elapsedMs.value, mistakes.value),
+      }
+      slotResults.value[currentSlot.value] = result
+
+      const isLastSlot = currentSlot.value === test.value.puzzles.length - 1
+      if (isLastSlot && !isTestMode) {
+        const slots = slotResults.value.filter((r): r is SlotResult => r !== null)
         stats.recordResult({
-          puzzleNumber: puzzle.value.puzzleNumber,
-          cipherType: puzzle.value.cipherType,
-          elapsedMs: elapsedMs.value,
-          wrongAttempts: mistakes.value,
+          testNumber: test.value.testNumber,
+          totalScore: slots.reduce((sum, s) => sum + s.score, 0),
+          slots,
         })
       }
     }
   }
 
-  /** TEMP: advances to the next puzzle in the static list, for testing other
-   * cipher types. Never repeats, never wraps, never touches real stats. */
-  function nextTestPuzzle(): boolean {
-    const index = puzzles.findIndex((p) => p.id === puzzle.value.id)
-    if (index < 0 || index + 1 >= puzzles.length) return false
+  function advanceToNextSlot() {
+    if (!solved.value || !hasNextSlot.value) return
+    loadSlot(currentSlot.value + 1)
+  }
+
+  /** TEMP: jumps to a different day's test, for trying other content without
+   * waiting on real calendar days. Never repeats a day, never touches real stats. */
+  function nextTestDay(): boolean {
+    if (!hasNextTestDay.value) return false
     isTestMode = true
-    loadPuzzle(buildPuzzle(puzzles[index + 1], index + 2), { trackStats: false })
+    testDaysAdvanced += 1
+    const nextDate = new Date(LAUNCH_DATE.getTime() + test.value.testNumber * 86_400_000)
+    test.value = getTestForDay(nextDate)
+    slotResults.value = test.value.puzzles.map(() => null)
+    loadSlot(0)
     return true
   }
 
   return {
+    test,
+    currentSlot,
     puzzle,
     letters,
     statuses,
     solved,
     elapsedLabel,
     setLetterAt,
-    hasNextTestPuzzle,
-    nextTestPuzzle,
+    slotResults,
+    currentScore,
+    totalScore,
+    isTestComplete,
+    hasNextSlot,
+    hasNextTestDay,
+    advanceToNextSlot,
+    nextTestDay,
   }
 })

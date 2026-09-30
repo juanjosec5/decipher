@@ -19,6 +19,9 @@ const pairSeparator = computed(() => (EQUALS_CIPHERS.includes(props.cipherType) 
 const description = computed(() =>
   props.difficulty === 'hard' ? HARD_FALLBACK : ciphers[props.cipherType].describe(props.seed),
 )
+const keyLabel = computed(() =>
+  props.difficulty === 'hard' ? null : ciphers[props.cipherType].getKeyLabel(props.seed),
+)
 </script>
 
 <template>
@@ -29,6 +32,7 @@ const description = computed(() =>
         <span v-if="i > 0">&nbsp;&nbsp;</span>{{ pair.from }} {{ pairSeparator }} {{ pair.to }}
       </span>
     </p>
+    <p v-if="keyLabel" class="mt-1.5 font-mono text-sm text-ink">{{ keyLabel }}</p>
     <p class="mt-1.5 text-xs leading-snug text-ink-faint">{{ description }}</p>
     <MorseReferenceModal v-if="cipherType === 'morse'" />
   </div>

@@ -29,4 +29,8 @@ export const substitution: CipherModule = {
   describe() {
     return 'Every letter always swaps for the same different letter throughout the message. Use repeated patterns and the example pairs to work out the rest.'
   },
+
+  getKeyLabel() {
+    return null
+  },
 }

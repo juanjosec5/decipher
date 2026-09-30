@@ -35,4 +35,8 @@ export const caesar: CipherModule = {
     const shift = shiftFor(seed)
     return `Every letter was shifted forward ${shift} places. Shift each one back ${shift} to read it — loop back to Z if you go past A.`
   },
+
+  getKeyLabel(seed) {
+    return `Shift: ${shiftFor(seed)}`
+  },
 }

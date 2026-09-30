@@ -3,16 +3,22 @@ import { computed, ref } from 'vue'
 
 import type { CipherType } from '@/types'
 
-const STORAGE_KEY = 'decipher:history'
+const STORAGE_KEY = 'decipher:test-history'
 
-export interface DayResult {
-  puzzleNumber: number
+export interface SlotResult {
   cipherType: CipherType
   elapsedMs: number
-  wrongAttempts: number
+  mistakes: number
+  score: number
 }
 
-function loadHistory(): Record<number, DayResult> {
+export interface DailyTestResult {
+  testNumber: number
+  totalScore: number
+  slots: SlotResult[]
+}
+
+function loadHistory(): Record<number, DailyTestResult> {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     return raw ? JSON.parse(raw) : {}
@@ -22,7 +28,7 @@ function loadHistory(): Record<number, DayResult> {
 }
 
 export const useStatsStore = defineStore('stats', () => {
-  const history = ref<Record<number, DayResult>>(loadHistory())
+  const history = ref<Record<number, DailyTestResult>>(loadHistory())
 
   function persist() {
     try {
@@ -32,13 +38,13 @@ export const useStatsStore = defineStore('stats', () => {
     }
   }
 
-  function recordResult(result: DayResult) {
-    history.value[result.puzzleNumber] = result
+  function recordResult(result: DailyTestResult) {
+    history.value[result.testNumber] = result
     persist()
   }
 
-  function getResult(puzzleNumber: number): DayResult | undefined {
-    return history.value[puzzleNumber]
+  function getResult(testNumber: number): DailyTestResult | undefined {
+    return history.value[testNumber]
   }
 
   const solvedCount = computed(() => Object.keys(history.value).length)

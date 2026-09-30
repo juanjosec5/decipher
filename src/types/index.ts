@@ -24,4 +24,6 @@ export interface CipherModule {
   getExample(seed: number): CipherExamplePair[]
   /** A one-line, plain-language explanation of how to decode this puzzle by hand. */
   describe(seed: number): string
+  /** A short, unambiguous key callout (e.g. "Shift: 21"), or null if the cipher has no single clean label. */
+  getKeyLabel(seed: number): string | null
 }

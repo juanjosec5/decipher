@@ -58,4 +58,8 @@ export const numericSymbol: CipherModule = {
     }
     return 'Each number is a letter’s position in the alphabet — 1 is A, 2 is B, up to 26 for Z.'
   },
+
+  getKeyLabel() {
+    return null
+  },
 }

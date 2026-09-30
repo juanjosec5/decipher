@@ -37,6 +37,19 @@ describe.each(Object.entries(MODULES))('%s', (_name, mod) => {
   it('describes how to decode it in plain language', () => {
     expect(mod.describe(42).length).toBeGreaterThan(0)
   })
+
+  it('getKeyLabel returns a non-empty string or null', () => {
+    const label = mod.getKeyLabel(42)
+    if (label !== null) expect(label.length).toBeGreaterThan(0)
+  })
+})
+
+describe('caesar getKeyLabel', () => {
+  it('states the same shift used by encode', () => {
+    const { key } = caesar.encode(PHRASE, 7)
+    const shift = Number(key.match(/\+(\d+)/)![1])
+    expect(caesar.getKeyLabel(7)).toBe(`Shift: ${shift}`)
+  })
 })
 
 describe.each(Object.entries(SEED_VARIANT_MODULES))('%s seed sensitivity', (_name, mod) => {

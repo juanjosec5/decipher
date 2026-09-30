@@ -20,7 +20,7 @@ export const puzzles: PuzzleSeed[] = [
   { id: 9, cipherType: 'caesar', difficulty: 'hard', plaintext: 'THOSE WHO DO NOT MOVE DO NOT NOTICE THEIR CHAINS' },
   { id: 10, cipherType: 'morse', difficulty: 'hard', plaintext: 'PATIENCE IS A BITTER PLANT WITH A SWEET FRUIT' },
   { id: 11, cipherType: 'substitution', difficulty: 'hard', plaintext: 'THE OBSTACLE IN THE PATH BECOMES THE PATH' },
-  { id: 12, cipherType: 'numericSymbol', difficulty: 'medium', plaintext: 'WHAT WE THINK WE BECOME OVER TIME' },
+  { id: 12, cipherType: 'numericSymbol', difficulty: 'hard', plaintext: 'WHAT WE THINK WE BECOME OVER TIME' },
   { id: 13, cipherType: 'caesar', difficulty: 'easy', plaintext: 'PRACTICE MAKES PERFECT' },
   { id: 14, cipherType: 'morse', difficulty: 'easy', plaintext: 'SLOW AND STEADY WINS' },
   { id: 15, cipherType: 'substitution', difficulty: 'easy', plaintext: 'SIMPLICITY IS UNDERRATED' },
