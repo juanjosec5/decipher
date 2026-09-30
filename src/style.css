@@ -1,0 +1,67 @@
+@import 'tailwindcss';
+
+/* ==========================================================================
+   PALETTE — "terminal grid": a monochrome black/white/gray base so the one
+   thing that IS colored — a letter guessed right or wrong — pops instead of
+   competing with warm chrome. Color is reserved for that signal only.
+   ========================================================================== */
+:root {
+  --palette-ground: 22 22 22; /* #161616 */
+  --palette-panel: 32 32 32; /* #202020 lifted panel — the ciphertext block */
+  --palette-panel-line: 51 51 51; /* #333333 hairlines/borders */
+
+  --palette-ink: 242 242 242; /* #F2F2F2 primary text */
+  --palette-ink-muted: 156 156 156; /* #9C9C9C secondary text */
+  --palette-ink-faint: 92 92 92; /* #5C5C5C placeholder text */
+
+  --palette-correct: 61 165 107; /* #3DA56B correct-letter tile */
+  --palette-wrong: 217 76 76; /* #D94C4C wrong-guess signal */
+
+  --palette-radius: 0.15rem;
+}
+
+@theme {
+  --color-ground: rgb(var(--palette-ground));
+  --color-panel: rgb(var(--palette-panel));
+  --color-panel-line: rgb(var(--palette-panel-line));
+
+  --color-ink: rgb(var(--palette-ink));
+  --color-ink-muted: rgb(var(--palette-ink-muted));
+  --color-ink-faint: rgb(var(--palette-ink-faint));
+
+  --color-correct: rgb(var(--palette-correct));
+  --color-wrong: rgb(var(--palette-wrong));
+
+  --font-stamp: 'Special Elite', ui-monospace, monospace;
+  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', monospace;
+
+  --radius-panel: var(--palette-radius);
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    @apply bg-ground font-sans text-ink;
+  }
+}
+
+/* difficulty tag — flat, grayscale, weight (not hue) signals the tier */
+@utility stamp {
+  @apply inline-block rounded-[3px] border px-2 py-0.5 text-[11px] tracking-[0.08em];
+  font-family: var(--font-mono);
+}
+
+@keyframes tile-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
